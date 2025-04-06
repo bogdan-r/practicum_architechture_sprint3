@@ -1,0 +1,22 @@
+@startuml
+title Monolith Smart House application
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Пользователь", "Пользователь умного дома")
+Person(smartHomeSupporter, "Установщик", "Специалист устанавливающий оборудование в умный дом")
+Person(MarketingManager, "Сотрудник маркетинга", "Специалист по маркетингу")
+
+System(SmartHouseSystem, "Система умного дома", "Управляет системой умного дома")
+System_Ext(HouseSystem, "Дом", "Дом с установленными датчиками")
+
+System(MarketingSystem, "Система маркетинга")
+
+Rel(user, SmartHouseSystem, "Взаимодействует с систеймой умного дома")
+Rel(smartHomeSupporter, HouseSystem, "Устанавливает оборудование в умный дом")
+Rel(SmartHouseSystem, HouseSystem, "Управляет датчиками в умном доме")
+
+Rel(MarketingManager, MarketingSystem, "Взаимодействует с системой маркетинга")
+@enduml

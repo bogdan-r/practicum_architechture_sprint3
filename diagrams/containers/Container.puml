@@ -1,0 +1,61 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_TOP_DOWN()
+
+
+' Внешние участники
+Person(user, "Пользователь", "Пользуется системой системой умного дома")
+
+
+System_Boundary(SmartHouseUIApplication, "Пользовательские приложения") {
+    Container(MobileApplication, "Мобильное приложение", "IOS/Android", "Мобильное приложение для управления умным домом")
+    Container(WebApplication, "Web приложение", "React", "Web приложение для управления умным домом")
+}
+
+System_Boundary(SmartHouse, "Система умного дома") {
+
+    Container(ApiGateway, "API Gateway", "Kong", "Определяет взаимодействие с микросервисами")
+    Container(Kafka, "Шина сообщений", "Kafka", "Шина сообщений")
+    
+    System_Boundary(UserManagement, "Управление пользователями") {
+        Container(UserManagementService, "Микросервис управления пользователями", "Java", "Управляет пользователями и домами")
+
+        ContainerDb(userDb, "База пользователей и домов", "PostgreSQL", "Хранит данные пользователях и домах")
+    }
+
+    System_Boundary(Devices, "Девайсы") {
+        Container(DeviceManagementService, "Микросервис учета девайсов", "Java", "Учет, описание устройств, статус, управление прошивками")
+        Container(DeviceControlService, "Микросервис управления девайсами", "Java", "Управление устройствами")
+
+        ContainerDb(devicesDb, "База зарегестрированных девайсов", "PostgreSQL", "Хранит данные девайсах")
+        ' ContainerDb(deviceControlDb, "База состояний ", "PostgreSQL", "Хранит данные девайсах")
+    }
+
+    System_Boundary(Telemetry, "Телеметрия") {
+        Container(TelemetryService, "Микросервис телеметрии", "Java", "Работа с телеметрией от девайсов")
+        ContainerDb(telemetryDb, "БД телеметрии", "Time Series DB", "Хранит данные телеметрии")
+    }
+}
+
+' Взаимодействия
+Rel(user, MobileApplication, "Управляет умным домом через пользовательские приложения")
+Rel(user, WebApplication, "Управляет умным домом через пользовательские приложения")
+
+Rel(MobileApplication, ApiGateway, "Взаимодействует с микросервисами через api gateway")
+Rel(WebApplication, ApiGateway, "Взаимодействует с микросервисами через api gateway")
+
+Rel(DeviceManagementService, devicesDb, "Хранит данные о девайсах")
+Rel(UserManagementService, userDb, "Хранит данные пользователях и домах")
+Rel(TelemetryService, telemetryDb, "Хранит данные телеметрии")
+
+Rel(ApiGateway, UserManagementService, "Управляет данными о пользователях")
+Rel(ApiGateway, DeviceManagementService, "Регистрирует и управляет девайсами")
+Rel(ApiGateway, DeviceControlService, "Выполняет команды пользователей")
+
+
+Rel(TelemetryService, Kafka, "Считывает показания девайсов")
+Rel(DeviceControlService, Kafka, "Асинхронно выполняет команды девайсов")
+Rel(DeviceManagementService, Kafka,  "Считывает статус девайсов")
+
+@enduml
