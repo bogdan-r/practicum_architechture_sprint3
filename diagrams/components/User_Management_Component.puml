@@ -1,0 +1,30 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+Person(user, "Пользователь", "Управляет своим аккаунтом и домом через UI")
+
+Container(userManagementService, "User Management Service", "Java", "Микросервис управления пользователями и их домами")
+
+Component(UserController, "User Controller", "Spring Boot REST Controller", "Обрабатывает запросы, связанные с пользователями")
+Component(HomeController, "Home Controller", "Spring Boot REST Controller", "Обрабатывает запросы, связанные с домами")
+Component(UserService, "User Service", "Сервис", "Инкапсулирует бизнес-логику управления пользователями")
+Component(HomeService, "Home Service", "Сервис", "Инкапсулирует бизнес-логику управления домами")
+Component(UserRepository, "User Repository", "JPA Repository", "Работает с таблицами пользователей")
+Component(HomeRepository, "Home Repository", "JPA Repository", "Работает с таблицами домов")
+Component(KafkaPublisher, "Kafka Publisher", "Kafka Client", "Публикует события (например, пользователь зарегистрирован)")
+
+
+Rel(user, UserController, "Регистрируется, редактирует профиль", "HTTPS")
+Rel(user, HomeController, "Создаёт и редактирует дом", "HTTPS")
+
+Rel(UserController, UserService, "Передаёт команды")
+Rel(HomeController, HomeService, "Передаёт команды")
+
+Rel(UserService, UserRepository, "Читает/пишет данные пользователей", "JDBC")
+Rel(HomeService, HomeRepository, "Читает/пишет данные домов", "JDBC")
+
+Rel(UserService, KafkaPublisher, "Публикует события")
+
+@enduml

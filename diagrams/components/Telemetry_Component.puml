@@ -1,0 +1,25 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+Person(user, "Пользователь", "Просматривает телеметрию и алерты через интерфейс")
+
+Container(telemetryService, "Telemetry Service", "Java", "Микросервис для обработки телеметрии от IoT-устройств")
+
+Component(TelemetryIngestController, "Telemetry Ingest Controller", "Spring Boot REST Controller", "Получает телеметрию от устройств через API")
+Component(KafkaTelemetryConsumer, "Kafka Telemetry Consumer", "Kafka Client", "Получает телеметрию от устройств через Kafka")
+Component(TelemetryProcessor, "Telemetry Processor", "Сервис", "Обрабатывает и агрегирует телеметрию")
+Component(AlertGenerator, "Alert Generator", "Сервис", "Генерирует алерты по заданным правилам")
+Component(TelemetryRepository, "Telemetry Repository", "JPA/TSDB Repository", "Сохраняет данные телеметрии в базу")
+Component(KafkaPublisher, "Kafka Publisher", "Kafka Client", "Отправляет алерты и агрегаты в Kafka")
+
+
+Rel(KafkaTelemetryConsumer, TelemetryProcessor, "Передаёт сообщения")
+Rel(TelemetryIngestController, TelemetryProcessor, "Передаёт данные с устройств")
+Rel(TelemetryProcessor, TelemetryRepository, "Сохраняет телеметрию", "JDBC/TSDB")
+Rel(TelemetryProcessor, AlertGenerator, "Проверяет на алерты")
+Rel(AlertGenerator, KafkaPublisher, "Публикует алерты")
+Rel(user, TelemetryIngestController, "Передаёт данные (если через API)", "HTTPS")
+
+@enduml

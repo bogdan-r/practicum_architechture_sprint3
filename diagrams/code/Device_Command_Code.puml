@@ -1,0 +1,21 @@
+@startuml
+actor User
+participant "API Gateway" as APIGW
+participant "DeviceControlService" as DCS
+participant "DeviceCommandHandler" as Handler
+participant "DeviceAdapter" as Adapter
+participant "CommandRepository" as Repo
+participant "KafkaPublisher" as Kafka
+
+User -> APIGW : POST /device/command
+APIGW -> DCS : forward command
+DCS -> Handler : handleCommand(cmd)
+Handler -> Repo : save(cmd)
+Handler -> Adapter : sendCommand(deviceId, payload)
+Adapter --> Handler : result
+Handler -> Kafka : publish(event)
+Handler --> DCS : ack
+DCS --> APIGW : success
+APIGW --> User : 200 OK
+
+@enduml

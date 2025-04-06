@@ -1,0 +1,30 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+Person(user, "Пользователь", "Самостоятельно подключает и управляет устройствами")
+
+Container(deviceMgmt, "Device Management Service", "Java", "Сервис для регистрации и управления IoT-устройствами")
+
+Component(RegistrationController, "Registration Controller", "Spring Boot REST Controller", "Позволяет регистрировать новые устройства")
+Component(DeviceQueryAPI, "Device Query API", "Spring Boot REST Controller", "Предоставляет информацию об устройствах пользователя")
+Component(FirmwareController, "Firmware Controller", "Spring Boot REST Controller", "Управление прошивками устройств")
+Component(DeviceRegistry, "Device Registry", "Сервис", "Инкапсулирует бизнес-логику управления устройствами")
+Component(FirmwareRegistry, "Firmware Registry", "Сервис", "Обрабатывает прошивки, их версии и совместимость")
+Component(DeviceRepository, "Device Repository", "JPA Repository", "Работает с БД устройств")
+Component(KafkaPublisher, "Kafka Publisher", "Kafka Client", "Отправляет события о девайсах в шину Kafka")
+
+
+Rel(user, RegistrationController, "Регистрирует устройства", "HTTPS")
+Rel(user, DeviceQueryAPI, "Получает информацию об устройствах", "HTTPS")
+
+Rel(RegistrationController, DeviceRegistry, "Передаёт команды на регистрацию")
+Rel(DeviceQueryAPI, DeviceRegistry, "Запрашивает данные")
+Rel(FirmwareController, FirmwareRegistry, "Управляет прошивками")
+
+Rel(DeviceRegistry, DeviceRepository, "Сохраняет и читает данные устройств", "JDBC")
+Rel(DeviceRegistry, KafkaPublisher, "Публикует события о девайсах")
+Rel(FirmwareRegistry, DeviceRepository, "Управляет версиями прошивок")
+
+@enduml
