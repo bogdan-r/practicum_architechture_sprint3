@@ -1,0 +1,24 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+Container(deviceControl, "Device Control Service", "Java", "Сервис управления устройствами умного дома")
+
+Component(CommandController, "Command Controller", "Spring Boot REST Controller", "Принимает команды от пользователей для управления устройствами")
+Component(DeviceCommandHandler, "Device Command Handler", "Сервис", "Обрабатывает команды, направленные на устройства")
+Component(CommandRepository, "Command Repository", "JPA Repository", "Сохраняет команды и историю управления")
+Component(KafkaConsumer, "Kafka Consumer", "Kafka Client", "Получает команды асинхронно из шины Kafka")
+Component(DeviceAdapter, "Device Adapter", "Интерфейс", "Абстрагирует взаимодействие с физическим устройством")
+Component(KafkaPublisher, "Kafka Publisher", "Kafka Client", "Отправляет события об исполнении команды")
+
+Person(user, "Пользователь", "Инициирует команды управления устройствами через приложение")
+
+Rel(user, CommandController, "Отправляет команды", "HTTPS")
+Rel(CommandController, DeviceCommandHandler, "Передаёт команды на обработку")
+Rel(DeviceCommandHandler, CommandRepository, "Сохраняет команды", "JDBC")
+Rel(DeviceCommandHandler, KafkaPublisher, "Публикует события")
+Rel(DeviceCommandHandler, DeviceAdapter, "Выполняет команды на устройстве")
+Rel(KafkaConsumer, DeviceCommandHandler, "Получает асинхронные команды")
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+actor User
+participant "API Gateway" as APIGW
+participant "DeviceRegistrationController" as Controller
+participant "DeviceRegistrationService" as Service
+participant "DeviceValidator" as Validator
+participant "DeviceRepository" as Repo
+
+User -> APIGW : POST /devices/register
+APIGW -> Controller : registerDevice(request)
+Controller -> Service : register(request)
+
+Service -> Validator : isSupported(deviceType, firmwareVersion)
+Validator --> Service : true
+
+Service -> Repo : exists(deviceId)
+Repo --> Service : false
+
+Service -> Repo : save(device)
+Repo --> Service : void
+
+Service --> Controller : DeviceRegistrationResponse(success)
+Controller --> APIGW : 200 OK
+APIGW --> User : "Устройство успешно зарегистрировано"
+
+@enduml

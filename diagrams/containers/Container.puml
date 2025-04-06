@@ -4,9 +4,9 @@
 LAYOUT_TOP_DOWN()
 
 
-' Внешние участники
 Person(user, "Пользователь", "Пользуется системой системой умного дома")
-
+Person(marketingManager, "Сотрудник маркетинга", "Занимается рекламой и маркетингом")
+Person(supportManager, "Сотрудник техподдержки", "Занимается техподдержкой")
 
 System_Boundary(SmartHouseUIApplication, "Пользовательские приложения") {
     Container(MobileApplication, "Мобильное приложение", "IOS/Android", "Мобильное приложение для управления умным домом")
@@ -29,7 +29,7 @@ System_Boundary(SmartHouse, "Система умного дома") {
         Container(DeviceControlService, "Микросервис управления девайсами", "Java", "Управление устройствами")
 
         ContainerDb(devicesDb, "База зарегестрированных девайсов", "PostgreSQL", "Хранит данные девайсах")
-        ' ContainerDb(deviceControlDb, "База состояний ", "PostgreSQL", "Хранит данные девайсах")
+        ContainerDb(devicesControlDb, "База зарегестрированных девайсов", "PostgreSQL", "Хранит данные девайсах")
     }
 
     System_Boundary(Telemetry, "Телеметрия") {
@@ -38,9 +38,19 @@ System_Boundary(SmartHouse, "Система умного дома") {
     }
 }
 
-' Взаимодействия
+System_Boundary(Marketing, "Маркетинг") {
+    Container(MarkentingService, "Сервис маркетинга", "Java", "Платформа для работы с маркетингом")
+}
+
+System_Boundary(Support, "Техподдержка") {
+    Container(SupportService, "Сервис техподдержки", "Java", "Сервис для заявок на техподдержку")
+}
+
 Rel(user, MobileApplication, "Управляет умным домом через пользовательские приложения")
 Rel(user, WebApplication, "Управляет умным домом через пользовательские приложения")
+
+Rel(marketingManager, MarkentingService, "Взаимодействует с сервисом маркетинга")
+Rel(supportManager, SupportService, "Взаимодействует с сервисом поддержки")
 
 Rel(MobileApplication, ApiGateway, "Взаимодействует с микросервисами через api gateway")
 Rel(WebApplication, ApiGateway, "Взаимодействует с микросервисами через api gateway")
@@ -48,6 +58,7 @@ Rel(WebApplication, ApiGateway, "Взаимодействует с микрос�
 Rel(DeviceManagementService, devicesDb, "Хранит данные о девайсах")
 Rel(UserManagementService, userDb, "Хранит данные пользователях и домах")
 Rel(TelemetryService, telemetryDb, "Хранит данные телеметрии")
+Rel(DeviceControlService, devicesControlDb, "Хранит команды и исхорию управления")
 
 Rel(ApiGateway, UserManagementService, "Управляет данными о пользователях")
 Rel(ApiGateway, DeviceManagementService, "Регистрирует и управляет девайсами")
